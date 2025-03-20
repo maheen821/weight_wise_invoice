@@ -1,0 +1,89 @@
+﻿@model weight_wise_Invoice.Models.WeightPaymentData
+
+@{
+    ViewBag.Title = "Payment Form";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h2 class="mb-0">Payment Form</h2>
+        </div>
+        <div class="card-body">
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>Customer Name:</label>
+                    <input type="text" class="form-control" id="CustomerName" name="CustomerName" value="@Model.CustomerName" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="text" class="form-control" id="Date" name="Date" value="@Model.Date" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>Total Amount:</label>
+                    <input type="text" class="form-control" id="TotalAmount" name="TotalAmount" value="@Model.TotalAmount" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method:</label>
+                    <select class="form-control" id="PaymentMethod" name="PaymentMethod">
+                        <option value="">Select Payment Method</option>
+                        <option value="CreditCard">Credit / Debit Card</option>
+                        <option value="CashOnDelivery">Cash on Delivery</option>
+                        <option value="PaymentDelay">Payment Delay</option>
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-success btn-block mt-3" onclick="submitPayment()">Confirm Payment</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ SweetAlert & jQuery Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    function submitPayment() {
+        var formData = {
+            CustomerName: $("#CustomerName").val(),
+            TotalAmount: $("#TotalAmount").val(),
+            PaymentMethod: $("#PaymentMethod").val()
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/WeightPayment/SubmitPayment",
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful!',
+                        text: 'Your payment has been processed successfully.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = "/WeightWise/WeightInvoice"; // ✅ Redirect to Invoice Page
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: response.message
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while processing your payment.'
+                });
+            }
+        });
+    }
+</script>
